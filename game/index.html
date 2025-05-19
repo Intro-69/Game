@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game || Animation</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = `
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        .main {
+          height: 100vh;
+          width: 100%;
+          position: relative;
+          overflow: hidden;
+          background-color: #a0e5ff;
+        }
+
+        .road {
+          height: 20vh;
+          width: 100%;
+          position: absolute;
+          bottom: 0;
+          z-index: 1;
+        }
+
+        .character, .kick-animation {
+          height: 30vh;
+          width: 20vh;
+          position: absolute;
+          background-size: cover;
+          z-index: 2;
+        }
+
+        .character {
+          background-image: url('ser-1.png');
+        }
+
+        .kick-animation {
+          display: none;
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          animation: kick 0.66s steps(7) forwards;
+        }
+
+        .dust {
+          position: absolute;
+          width: 80px;
+          height: 80px;
+          background-size: cover;
+          display: none;
+          z-index: 1;
+        }
+
+        .dust-animation {
+          animation: dust 0.6s steps(4) forwards;
+        }
+
+        @keyframes kick {
+          0% { background-image: url('ser-1.png'); }
+          14% { background-image: url('ser-2.png'); }
+          28% { background-image: url('ser-3.png'); }
+          42% { background-image: url('ser-4.png'); }
+          56% { background-image: url('ser-5.png'); }
+          70% { background-image: url('ser-6.png'); }
+          100% { background-image: url('ser-7.png'); }
+        }
+
+        @keyframes dust {
+          0% { background-image: url('dust1.png'); }
+          25% { background-image: url('dust2.png'); }
+          50% { background-image: url('dust3.png'); }
+          75% { background-image: url('dust4.png'); }
+          100% { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      const main = document.createElement("div");
+      main.className = "main";
+      main.id = "game";
+      document.body.appendChild(main);
+
+      const road = document.createElement("img");
+      road.src = "road.png";
+      road.className = "road";
+      main.appendChild(road);
+
+      const character = document.createElement("div");
+      character.className = "character";
+      character.id = "character";
+      main.appendChild(character);
+
+      const kick = document.createElement("div");
+      kick.className = "kick-animation";
+      kick.id = "kick";
+      main.appendChild(kick);
+
+      const dust = document.createElement("div");
+      dust.className = "dust";
+      dust.id = "dust";
+      main.appendChild(dust);
+
+      const groundY = 20;
+      let posX = window.innerWidth / 2;
+      let posY = groundY;
+      let velocityY = 0;
+      const gravity = -0.8;
+      const jumpForce = 15;
+      const moveSpeed = 5;
+      let isJumping = false;
+      let isKicking = false;
+
+      let keys = {};
+
+      window.addEventListener('keydown', (e) => keys[e.code] = true);
+      window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+      function animate() {
+        if (!isKicking) {
+          if (keys['KeyA']) posX -= moveSpeed;
+          if (keys['KeyD']) posX += moveSpeed;
+
+          posX = Math.max(0, Math.min(posX, window.innerWidth - 100));
+
+          if ((keys['KeyW'] || keys['Space']) && !isJumping) {
+            velocityY = jumpForce;
+            isJumping = true;
+          }
+
+          velocityY += gravity;
+          posY += velocityY;
+
+          if (posY <= groundY) {
+            posY = groundY;
+            velocityY = 0;
+            isJumping = false;
+          }
+        }
+
+        character.style.left = `${posX}px`;
+        character.style.bottom = `${posY}px`;
+
+        if (keys['KeyE']) {
+          keys['KeyE'] = false;
+          kickAnimation();
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      function kickAnimation() {
+        isKicking = true;
+        character.style.display = 'none';
+
+        kick.style.display = 'block';
+        kick.style.left = `${posX}px`;
+        kick.style.bottom = `${posY}px`;
+
+        setTimeout(() => {
+          dust.style.display = 'block';
+          dust.style.left = `${posX - 30}px`;
+          dust.style.bottom = `${posY + 140}px`;
+          dust.classList.add('dust-animation');
+        }, 300);
+
+        setTimeout(() => {
+          kick.style.display = 'none';
+          character.style.display = 'block';
+          dust.style.display = 'none';
+          dust.classList.remove('dust-animation');
+          isKicking = false;
+        }, 600);
+      }
+
+      animate();
+    });
+  </script>
+</head>
+<body></body>
+</html>
