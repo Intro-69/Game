@@ -247,18 +247,8 @@ function kickAnimation() {
   const enemyX = enemy.offsetLeft;
   const enemyW = enemy.offsetWidth;
 
-//   // Adjust enemy hitbox: Make it smaller for more fair detection
-//   // move hitbox to the RIGHT
-// const hitboxStart = enemyX + 50;
-// const hitboxEnd = enemyX + enemyW;
-
-// // move hitbox to the LEFT
-const hitboxStart = enemyX;
-const hitboxEnd = enemyX + enemyW - 130;
-
-// // smaller center hitbox
-// const hitboxStart = enemyX + 30;
-// const hitboxEnd = enemyX + enemyW - 30;
+  const hitboxStart = enemyX;
+  const hitboxEnd = enemyX + enemyW - 130;
 
   const attackRange = 80;
 
@@ -270,34 +260,34 @@ const hitboxEnd = enemyX + enemyW - 130;
       enemyHealth = Math.max(0, enemyHealth - 17);
       enemyHealthBar.style.width = `${enemyHealth}px`;
 
-      const knockbackDistance = window.innerWidth * 0.04;
-      const newX = facing === 1 ? enemyX + knockbackDistance : enemyX - knockbackDistance;
-      enemy.style.left = `${newX}px`;
+      setTimeout(() => {
+        const knockbackDistance = window.innerWidth * 0.04;
+        const newX = facing === 1 ? enemyX + knockbackDistance : enemyX - knockbackDistance;
+        enemy.style.left = `${newX}px`;
 
         setTimeout(() => {
-    enemy.style.left = `${newX}px`;
+          hitEffect.style.display = 'block';
+          hitEffect.style.left = `${newX}px`;
+          hitEffect.style.bottom = `${enemy.style.bottom}`;
+          setTimeout(() => hitEffect.style.display = 'none', 100);
 
-    hitEffect.style.display = 'block';
-    hitEffect.style.left = `${newX}px`;
-    hitEffect.style.bottom = `${enemy.style.bottom}`;
-    setTimeout(() => hitEffect.style.display = 'none', 500);
+          if (enemyHealth === 0) {
+            enemy.style.display = 'none';
+            defeated.style.display = 'block';
+            defeated.style.left = `${newX}px`;
+            defeated.style.bottom = enemy.style.bottom;
+          }
+        }, 700);
+      }, 300);
 
-    if (enemyHealth === 0) {
-      enemy.style.display = 'none';
-      defeated.style.display = 'block';
-      defeated.style.left = `${newX}px`;
-      defeated.style.bottom = enemy.style.bottom;
-    }
-  }, 800);
+      setTimeout(() => {
+        dust.style.display = 'block';
+        dust.style.left = `${facing === 1 ? posX + 85 : posX - 40}px`;
+        dust.style.bottom = `${posY + 140}px`;
+        dust.classList.add('dust-animation');
+      }, 300);
     }
   }
-
-  setTimeout(() => {
-    dust.style.display = 'block';
-    dust.style.left = `${facing === 1 ? posX + 85 : posX - 40}px`;
-    dust.style.bottom = `${posY + 140}px`;
-    dust.classList.add('dust-animation');
-  }, 300);
 
   setTimeout(() => {
     kick.style.display = 'none';
@@ -305,9 +295,10 @@ const hitboxEnd = enemyX + enemyW - 130;
     dust.style.display = 'none';
     dust.classList.remove('dust-animation');
     isKicking = false;
-    setTimeout(() => canKick = true, 200);
-  }, 500);
+    setTimeout(() => canKick = true, 50);
+  }, 400);
 }
+
 
       animate();
     });
