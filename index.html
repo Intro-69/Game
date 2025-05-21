@@ -3,89 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game || Animation</title>
+  <title>Lady || Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .main {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background-color: #a0e5ff;
+    }
+
+    .road {
+      height: 20vh;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      z-index: 1;
+    }
+
+    .character, .kick-animation, .enemy, .enemy-defeated {
+      height: 30vh;
+      width: 20vh;
+      position: absolute;
+      background-size: cover;
+      z-index: 2;
+    }
+
+    .character {
+      background-image: url('ser-1.png');
+    }
+
+    .kick-animation {
+      display: none;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      animation: kick 0.66s steps(7) forwards;
+    }
+
+    .enemy {
+      background-image: url('ser-1.png');
+      bottom: 3vh;
+      transition: left 1s ease;
+    }
+
+    .enemy-defeated {
+      display: none;
+      background-image: url('die.png');
+      height: 30vh;
+      width: 25vh;
+      position: absolute;
+      bottom: 3vh;
+      z-index: 2;
+      animation: enemyDie 1s steps(5) forwards;
+    }
+
+    .dust, .hit-effect {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background-size: cover;
+      display: none;
+      z-index: 3;
+    }
+
+    .dust-animation {
+      animation: dust 0.6s steps(4) forwards;
+    }
+
+    .healthbar {
+      position: absolute;
+      height: 8px;
+      background-color: red;
+      border: 1px solid black;
+      z-index: 3;
+      transition: width 0.3s ease;
+      width: 100px;
+    }
+
+    @keyframes kick {
+      0% { background-image: url('ser-1.png'); }
+      14% { background-image: url('ser-2.png'); }
+      28% { background-image: url('ser-3.png'); }
+      42% { background-image: url('ser-4.png'); }
+      56% { background-image: url('ser-5.png'); }
+      70% { background-image: url('ser-6.png'); }
+      100% { background-image: url('ser-7.png'); }
+    }
+
+    @keyframes dust {
+      0% { background-image: url('dust1.png'); }
+      25% { background-image: url('dust2.png'); }
+      50% { background-image: url('dust3.png'); }
+      75% { background-image: url('dust4.png'); }
+      100% { opacity: 0; }
+    }
+
+    @keyframes enemyDie {
+      0%   { background-image: url('enedie-1.png'); }
+      25%  { background-image: url('enedie-2.png'); }
+      50%  { background-image: url('enedie-3.png'); }
+      75%  { background-image: url('enedie-4.png'); }
+      100% { background-image: url('enedie-5.png'); opacity: 0; }
+    }
+  </style>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const style = document.createElement("style");
-      style.textContent = `
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        .main {
-          height: 100vh;
-          width: 100%;
-          position: relative;
-          overflow: hidden;
-          background-color: #a0e5ff;
-        }
-
-        .road {
-          height: 20vh;
-          width: 100%;
-          position: absolute;
-          bottom: 0;
-          z-index: 1;
-        }
-
-        .character, .kick-animation {
-          height: 30vh;
-          width: 20vh;
-          position: absolute;
-          background-size: cover;
-          z-index: 2;
-        }
-
-        .character {
-          background-image: url('ser-1.png');
-        }
-
-        .kick-animation {
-          display: none;
-          background-size: contain;
-          background-repeat: no-repeat;
-          background-position: center;
-          animation: kick 0.66s steps(7) forwards;
-        }
-
-        .dust {
-          position: absolute;
-          width: 80px;
-          height: 80px;
-          background-size: cover;
-          display: none;
-          z-index: 1;
-        }
-
-        .dust-animation {
-          animation: dust 0.6s steps(4) forwards;
-        }
-
-        @keyframes kick {
-          0% { background-image: url('ser-1.png'); }
-          14% { background-image: url('ser-2.png'); }
-          28% { background-image: url('ser-3.png'); }
-          42% { background-image: url('ser-4.png'); }
-          56% { background-image: url('ser-5.png'); }
-          70% { background-image: url('ser-6.png'); }
-          100% { background-image: url('ser-7.png'); }
-        }
-
-        @keyframes dust {
-          0% { background-image: url('dust1.png'); }
-          25% { background-image: url('dust2.png'); }
-          50% { background-image: url('dust3.png'); }
-          75% { background-image: url('dust4.png'); }
-          100% { opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
-
       const main = document.createElement("div");
       main.className = "main";
-      main.id = "game";
       document.body.appendChild(main);
 
       const road = document.createElement("img");
@@ -108,77 +139,175 @@
       dust.id = "dust";
       main.appendChild(dust);
 
-      const groundY = 20;
+      const hitEffect = document.createElement("div");
+      hitEffect.className = "hit-effect";
+      hitEffect.style.backgroundImage = "url('enedmg.png')";
+      hitEffect.id = "hitEffect";
+      main.appendChild(hitEffect);
+
+      const enemy = document.createElement("div");
+      enemy.className = "enemy";
+      enemy.style.left = "30%";
+      enemy.style.bottom = "3vh";
+      enemy.id = "enemy";
+      main.appendChild(enemy);
+
+      const defeated = document.createElement("div");
+      defeated.className = "enemy-defeated";
+      defeated.style.left = "70%";
+      defeated.style.bottom = "3vh";
+      main.appendChild(defeated);
+
+      const enemyHealthBar = document.createElement("div");
+      enemyHealthBar.className = "healthbar";
+      main.appendChild(enemyHealthBar);
+
+      const playerHealthBar = document.createElement("div");
+      playerHealthBar.className = "healthbar";
+      main.appendChild(playerHealthBar);
+
       let posX = window.innerWidth / 2;
-      let posY = groundY;
+      let posY = 20;
       let velocityY = 0;
-      const gravity = -0.8;
+      const gravity = -0.9;
       const jumpForce = 15;
-      const moveSpeed = 5;
+      const moveSpeed = 4;
       let isJumping = false;
       let isKicking = false;
+      let canKick = true;
+      let facing = 1;
+
+      let enemyHealth = 100;
+      let playerHealth = 100;
 
       let keys = {};
-
-      window.addEventListener('keydown', (e) => keys[e.code] = true);
-      window.addEventListener('keyup', (e) => keys[e.code] = false);
+      window.addEventListener('keydown', e => keys[e.code] = true);
+      window.addEventListener('keyup', e => keys[e.code] = false);
 
       function animate() {
-        if (!isKicking) {
-          if (keys['KeyA']) posX -= moveSpeed;
-          if (keys['KeyD']) posX += moveSpeed;
+  if (!isKicking) {
+    const currentSpeed = keys['ShiftRight'] ? 8 : moveSpeed;
 
-          posX = Math.max(0, Math.min(posX, window.innerWidth - 100));
+    if (keys['KeyA']) {
+      posX -= currentSpeed;
+      character.style.transform = "scaleX(1)";
+      kick.style.transform = "scaleX(1)";
+      facing = -1;
+    } else if (keys['KeyD']) {
+      posX += currentSpeed;
+      character.style.transform = "scaleX(-1)";
+      kick.style.transform = "scaleX(-1)";
+      facing = 1;
+    }
 
-          if ((keys['KeyW'] || keys['Space']) && !isJumping) {
-            velocityY = jumpForce;
-            isJumping = true;
-          }
+    posX = Math.max(0, Math.min(posX, window.innerWidth - 100));
 
-          velocityY += gravity;
-          posY += velocityY;
+    if ((keys['Space']) && !isJumping) {
+      velocityY = jumpForce;
+      isJumping = true;
+    }
 
-          if (posY <= groundY) {
-            posY = groundY;
-            velocityY = 0;
-            isJumping = false;
-          }
-        }
+    velocityY += gravity;
+    posY += velocityY;
 
-        character.style.left = `${posX}px`;
-        character.style.bottom = `${posY}px`;
+    if (posY <= 20) {
+      posY = 20;
+      velocityY = 0;
+      isJumping = false;
+    }
+  }
 
-        if (keys['KeyE']) {
-          keys['KeyE'] = false;
-          kickAnimation();
-        }
+  character.style.left = `${posX}px`;
+  character.style.bottom = `${posY}px`;
+  playerHealthBar.style.left = `${posX + 30}px`;
+  playerHealthBar.style.bottom = `${posY + 230}px`;
 
-        requestAnimationFrame(animate);
-      }
+  const enemyX = enemy.offsetLeft;
+  const enemyY = parseFloat(enemy.style.bottom);
+  enemyHealthBar.style.left = `${enemyX + 30}px`;
+  enemyHealthBar.style.bottom = `${enemyY + 250}px`;
 
-      function kickAnimation() {
-        isKicking = true;
-        character.style.display = 'none';
+  if (keys['KeyW'] && canKick) {
+    keys['KeyW'] = false;
+    kickAnimation();
+  }
 
-        kick.style.display = 'block';
-        kick.style.left = `${posX}px`;
-        kick.style.bottom = `${posY}px`;
+  requestAnimationFrame(animate);
+}
+
+function kickAnimation() {
+  canKick = false;
+  isKicking = true;
+  character.style.display = 'none';
+
+  kick.style.display = 'block';
+  kick.style.left = `${posX}px`;
+  kick.style.bottom = `${posY}px`;
+
+  const enemyX = enemy.offsetLeft;
+  const enemyW = enemy.offsetWidth;
+
+//   // Adjust enemy hitbox: Make it smaller for more fair detection
+//   // move hitbox to the RIGHT
+// const hitboxStart = enemyX + 50;
+// const hitboxEnd = enemyX + enemyW;
+
+// // move hitbox to the LEFT
+const hitboxStart = enemyX;
+const hitboxEnd = enemyX + enemyW - 130;
+
+// // smaller center hitbox
+// const hitboxStart = enemyX + 30;
+// const hitboxEnd = enemyX + enemyW - 30;
+
+  const attackRange = 80;
+
+  if (
+    (facing === 1 && posX + attackRange >= hitboxStart && posX < hitboxEnd) ||
+    (facing === -1 && posX - attackRange <= hitboxEnd && posX > hitboxStart)
+  ) {
+    if (enemyHealth > 0) {
+      enemyHealth = Math.max(0, enemyHealth - 17);
+      enemyHealthBar.style.width = `${enemyHealth}px`;
+
+      const knockbackDistance = window.innerWidth * 0.04;
+      const newX = facing === 1 ? enemyX + knockbackDistance : enemyX - knockbackDistance;
+      enemy.style.left = `${newX}px`;
 
         setTimeout(() => {
-          dust.style.display = 'block';
-          dust.style.left = `${posX - 30}px`;
-          dust.style.bottom = `${posY + 140}px`;
-          dust.classList.add('dust-animation');
-        }, 300);
+    enemy.style.left = `${newX}px`;
 
-        setTimeout(() => {
-          kick.style.display = 'none';
-          character.style.display = 'block';
-          dust.style.display = 'none';
-          dust.classList.remove('dust-animation');
-          isKicking = false;
-        }, 600);
-      }
+    hitEffect.style.display = 'block';
+    hitEffect.style.left = `${newX}px`;
+    hitEffect.style.bottom = `${enemy.style.bottom}`;
+    setTimeout(() => hitEffect.style.display = 'none', 500);
+
+    if (enemyHealth === 0) {
+      enemy.style.display = 'none';
+      defeated.style.display = 'block';
+      defeated.style.left = `${newX}px`;
+      defeated.style.bottom = enemy.style.bottom;
+    }
+  }, 800);
+    }
+  }
+
+  setTimeout(() => {
+    dust.style.display = 'block';
+    dust.style.left = `${facing === 1 ? posX + 85 : posX - 40}px`;
+    dust.style.bottom = `${posY + 140}px`;
+    dust.classList.add('dust-animation');
+  }, 300);
+
+  setTimeout(() => {
+    kick.style.display = 'none';
+    character.style.display = 'block';
+    dust.style.display = 'none';
+    dust.classList.remove('dust-animation');
+    isKicking = false;
+    setTimeout(() => canKick = true, 200);
+  }, 500);
+}
 
       animate();
     });
